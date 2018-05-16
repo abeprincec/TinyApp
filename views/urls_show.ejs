@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <header>
+        <% include ./partials/_header %>
+    </header>
+   <p> Current short URL <%=shortURL %></p>
+   <p>current Long URL<%=urls[shortURL] %></p>
+
+   <form method="POST" action="/urls/<%= shortURL %>">
+    <label>Current</label>
+    <input name="longURL" value="<%=urls[shortURL]%>"type="text"  style="width: 300px">
+    <input type="submit" value="Update" />
+
+</form>
+</body>
+
+</html>

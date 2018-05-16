@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TinyApp</title>
+</head>
+
+<body>
+    <header>
+        <% include ./partials/_header %>
+    </header>
+    <table>
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Short Form</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <%for (var prop in urls) { %>
+                <tr>
+                    <td>
+                        <%=  urls[prop] %>
+                    </td>
+                    <td>
+                        <%= prop %>
+                    </td>
+                    <td>
+                        <td>
+                            <a href="/urls/<%= prop %>/edit">
+                                Edit
+                            </a>
+                        </td>
+                        <td>
+                            <form method="POST" action="/urls/<%= prop %>/delete">
+                                <input type="submit" value="Delete" />
+                            </form>
+                        </td>
+                    </td>
+                    <% } %>
+                </tr>
+        </tbody>
+    </table>
+    <a href="/urls/new">Shorten url</a>
+
+</body>
+
+</html>
