@@ -10,8 +10,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const urlDatabase = {
-	b2xVn2: 'http://www.lighthouselabs.ca',
-	'9sm5xk': 'http://www.google.com',
+	b2xVn2: {
+		shortURL: 'b2xVn2',
+		longURL: 'http://www.lighthouselabs.ca',
+		userId: 'userRandomID',
+	},
+	'9sm5xk': {
+		shortURL: '9sm5xk',
+		longURL: 'http://www.google.com',
+		userId: 'user2RandomID',
+	},
 };
 
 const users = {
@@ -46,6 +54,11 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
+	console.log(req.cookies);
+
+	if (req.cookies.user_id == undefined) {
+		res.redirect('/login');
+	}
 	let templateVars = {
 		users: users[req.cookies.user_id],
 	};
@@ -54,7 +67,11 @@ app.get('/urls/new', (req, res) => {
 
 app.post('/urls', (req, res) => {
 	const shortURL = generateRandomString();
-	urlDatabase[shortURL] = req.body.longURL;
+	urlDatabase[shortURL] = {
+		shortURL: shortURL,
+		longURL: req.body.longURL,
+		userId: req.cookies.user_id,
+	};
 
 	let templateVars = {
 		users: users[req.cookies.user_id],
@@ -66,7 +83,7 @@ app.post('/urls', (req, res) => {
 app.get('/urls/:id', (req, res) => {
 	let templateVars = {
 		shortURL: req.params.id,
-		urls: urlDatabase,
+		urls: urlDatabase[req.params.id],
 		users: users[req.cookies.user_id],
 	};
 	res.render('urls_new', templateVars);
@@ -89,6 +106,11 @@ app.get('/u/:shortURL', (req, res) => {
 app.post('/urls/:id/delete', (req, res) => {
 	const id = req.params.id;
 	const longurlToDelete = urlDatabase[id];
+
+	if (urlDatabase[id].userId !== req.cookies.user_id) {
+		res.status(401).send('Not your URL');
+		return;
+	}
 	if (longurlToDelete) {
 		delete urlDatabase[id];
 	}
@@ -96,9 +118,23 @@ app.post('/urls/:id/delete', (req, res) => {
 	res.redirect('/urls');
 });
 
+//function checkUrl(id, )
 app.get('/urls/:id/edit', (req, res) => {
 	const id = req.params.id;
 	//const longURL = urlDatabase[id];
+
+	if (urlDatabase[id].userId !== req.cookies.user_id) {
+		res.status(401).send('Not your URL');
+		return;
+	}
+
+	// else {
+	// 	urlDatabase.id = {
+	// 		shortURL: id,
+	// 		longURL: req.body.longURL,
+	// 		userid: req.cookies['user_id'],
+	// 	};
+	// }
 
 	let templateVars = {
 		shortURL: id,
@@ -112,8 +148,13 @@ app.get('/urls/:id/edit', (req, res) => {
 app.post('/urls/:id', (req, res) => {
 	const id = req.params.id;
 
+	if (urlDatabase[id].userId !== req.cookies.user_id) {
+		res.status(401).send('Not your URL');
+		return;
+	}
 	console.log(id);
-	urlDatabase[id] = req.body.longURL;
+
+	urlDatabase[id].longURL = req.body.longURL;
 
 	res.redirect('/urls/');
 });

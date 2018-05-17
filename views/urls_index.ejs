@@ -19,16 +19,18 @@
         <tbody>
 
             <%for (var prop in urls) { %>
+                <% if (users && urls[prop].userId === users.id) { %>
                 <tr>
                     <td>
-                        <%=  urls[prop] %>
+                        
+                        <%=  urls[prop].longURL %>
                     </td>
                     <td>
-                        <%= prop %>
+                        <%= urls[prop].shortURL %>
                     </td>
                     <td>
                         <td>
-                            <a href="/urls/<%= prop %>/edit">
+                            <a href="/urls/<%= urls[prop].shortURL %>/edit">
                                 Edit
                             </a>
                         </td>
@@ -38,8 +40,10 @@
                             </form>
                         </td>
                     </td>
-                    <% } %>
+                    
                 </tr>
+                <% } %>
+            <% } %>
         </tbody>
     </table>
     <a href="/urls/new">Shorten url</a>
