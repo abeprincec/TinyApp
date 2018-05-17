@@ -1,7 +1,20 @@
 const express = require('express');
-const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+var cookieSession = require('cookie-session')
+
+const app = express();
+
+
+app.use(cookieSession({
+	name: 'session',
+	keys: ['secret'],
+  
+	// Cookie Options
+	maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }))
+
 
 const PORT = process.env.PORT || 8080;
 
@@ -147,15 +160,11 @@ app.get('/urls/:id/edit', (req, res) => {
 
 app.post('/urls/:id', (req, res) => {
 	const id = req.params.id;
-
 	if (urlDatabase[id].userId !== req.cookies.user_id) {
 		res.status(401).send('Not your URL');
 		return;
-	}
-	console.log(id);
-
+	}	
 	urlDatabase[id].longURL = req.body.longURL;
-
 	res.redirect('/urls/');
 });
 
@@ -166,7 +175,9 @@ app.get('/hello', (req, res) => {
 function checkUser(email, password) {
 	for (id in users) {
 		const user = users[id];
-		if (user.email == email && user.password == password) {
+		const hashedPassword = bcrypt.hashSync(user.password, 10);
+		const checkPassword = bcrypt.compareSync(user.password, hashedPassword)
+		if (user.email == email && checkPassword) {
 			return true;
 		}
 	}
@@ -226,11 +237,11 @@ app.post('/register', (req, res) => {
 	if (checkEmail(email)) {
 		res.status(400).send('email is already registered');
 	}
-
+const hashedPassword = bcrypt.hashSync(password, 10)
 	users[newUserId] = {
 		id: newUserId,
 		email: email,
-		password: password,
+		password: hashedPassword,
 	};
 
 	res.cookie('user_id', users[newUserId].id);
