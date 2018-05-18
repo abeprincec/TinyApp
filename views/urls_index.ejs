@@ -16,38 +16,38 @@
                 <th>Short Form</th>
             </tr>
         </thead>
-        <tbody>
+        <%for (var prop in urls) { %>
+            <% if (users && urls[prop].userId === users.id) { %>
+                <tbody>
+                    <tr>
+                        <td>
+                            <%=  urls[prop].longURL %>
+                        </td>
+                        <td>
+                            <%= urls[prop].shortURL %>
+                        </td>
+                        <td>
+                            <td>
+                                <a href="/urls/<%= urls[prop].shortURL %>/edit">
+                                    Edit
+                                </a>
+                            </td>
+                            <td>
+                                <form method="POST" action="/urls/<%= prop %>/delete">
+                                    <input type="submit" value="Delete" />
+                                </form>
+                            </td>
+                        </td>
 
-            <%for (var prop in urls) { %>
-                <% if (users && urls[prop].userId === users.id) { %>
-                <tr>
-                    <td>
-                        
-                        <%=  urls[prop].longURL %>
-                    </td>
-                    <td>
-                        <%= urls[prop].shortURL %>
-                    </td>
-                    <td>
-                        <td>
-                            <a href="/urls/<%= urls[prop].shortURL %>/edit">
-                                Edit
-                            </a>
-                        </td>
-                        <td>
-                            <form method="POST" action="/urls/<%= prop %>/delete">
-                                <input type="submit" value="Delete" />
-                            </form>
-                        </td>
-                    </td>
-                    
-                </tr>
-                <% } %>
-            <% } %>
-        </tbody>
+                    </tr>
+                    <% } %>
+                        <% } %>
+                </tbody>
+
     </table>
-    <a href="/urls/new">Shorten url</a>
-
+    <% if (users) { %>
+        <a href="/urls/new"> Shorten Link</a>
+        <% } %>
 </body>
 
 </html>

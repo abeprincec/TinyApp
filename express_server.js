@@ -46,6 +46,11 @@ const users = {
 		email: 'user2@example.com',
 		password: 'dishwasher-funk',
 	},
+	user3: {
+		id: 'user3',
+		email: 'ab@gmail.com',
+		password: '123',
+	},
 };
 
 function generateRandomString() {
@@ -55,7 +60,12 @@ function generateRandomString() {
 }
 
 app.get('/', (req, res) => {
-	res.end('Hello!');
+	if (!req.session) {
+		res.redirect('/login');
+	}
+	if (res.session) {
+		res.redirect('/urls');
+	}
 });
 
 app.get('/urls', (req, res) => {
@@ -67,8 +77,6 @@ app.get('/urls', (req, res) => {
 });
 
 app.get('/urls/new', (req, res) => {
-	console.log(req.session);
-
 	if (req.session.user_id == undefined) {
 		res.redirect('/login');
 	}
@@ -108,7 +116,7 @@ app.get('/urls.json', (req, res) => {
 
 app.get('/u/:shortURL', (req, res) => {
 	let shortURL = req.params.shortURL;
-	let longURL = urlDatabase[shortURL];
+	let longURL = urlDatabase[shortURL].longURL;
 
 	if (longURL === undefined) {
 		res.sendStatus(404);
@@ -119,8 +127,6 @@ app.get('/u/:shortURL', (req, res) => {
 app.post('/urls/:id/delete', (req, res) => {
 	const id = req.params.id;
 	const longurlToDelete = urlDatabase[id];
-	console.log(req.session.user_id);
-	
 	if (urlDatabase[id].userId !== req.session.user_id) {
 		res.status(401).send('Not your URL');
 		return;
@@ -128,27 +134,16 @@ app.post('/urls/:id/delete', (req, res) => {
 	if (longurlToDelete) {
 		delete urlDatabase[id];
 	}
-
 	res.redirect('/urls');
 });
 
-//function checkUrl(id, )
 app.get('/urls/:id/edit', (req, res) => {
 	const id = req.params.id;
-	//const longURL = urlDatabase[id];
 
 	if (urlDatabase[id].userId !== req.session.user_id) {
 		res.status(401).send('Not your URL');
 		return;
 	}
-
-	// else {
-	// 	urlDatabase.id = {
-	// 		shortURL: id,
-	// 		longURL: req.body.longURL,
-	// 		userid: req.cookies['user_id'],
-	// 	};
-	// }
 
 	let templateVars = {
 		shortURL: id,
@@ -199,20 +194,16 @@ app.post('/login', (req, res) => {
 	}
 
 	if (checkUser(login_email, login_password)) {
-		//res.session('user_id', returnID(login_email));
-		req.session.user_id =  returnID(login_email);
+		req.session.user_id = returnID(login_email);
 		res.redirect('/urls');
 	} else {
 		res.status(403).send('wrong email or password');
 	}
 });
 
-
-
 app.post('/logout', (req, res) => {
-	res.session.user_id = null;
-	//res.clearCookie('user_id', user_id);
-	res.redirect('/urls');
+	req.session = null;
+	res.redirect('/');
 });
 
 app.get('/register', (req, res) => {

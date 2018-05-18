@@ -1,14 +1,14 @@
 <h1> Tiny App</h1>
 
 <nav>
-    <ul>
+   
         <% if (users) { %>
-            <li>
+        <p> 
                 <form method="POST" action="/logout">
                     <input type="submit" value="logout" />
                 </form>
-            </li>
-            <p>
+      </p>
+        
                 <%= users.email %>
             </p>
 
