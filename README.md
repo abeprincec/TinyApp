@@ -4,8 +4,8 @@ TinyApp is a full stack web application built with Node and Express that allows
 
 ## Final Product
 
-!["Screenshort of URLs page"]()
-!["Screenshort of new link page"]()
+!["Screenshort of URLs page"](https://raw.githubusercontent.com/abeprincec/TinyApp/master/docs/homepage-logged-in.png)
+!["Screenshort of new link page"](https://github.com/abeprincec/TinyApp/blob/master/docs/Enter-a-url-to-shorten.png)
 
 ## Dependencies
 
