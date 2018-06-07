@@ -2,7 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
-var cookieSession = require('cookie-session');
+const cookieSession = require('cookie-session');
+const PORT = process.env.PORT || 8080;
 
 const app = express();
 
@@ -15,8 +16,6 @@ app.use(
 		maxAge: 24 * 60 * 60 * 1000, // 24 hours
 	})
 );
-
-const PORT = process.env.PORT || 8080;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -59,15 +58,16 @@ function generateRandomString() {
 		.substring(7);
 }
 
+//home page
 app.get('/', (req, res) => {
-	if (!req.session) {
-		res.redirect('/login');
-	}
+	
 	if (res.session) {
 		res.redirect('/urls');
 	}
+	res.render('urls_login');
 });
 
+//urls page
 app.get('/urls', (req, res) => {
 	let templateVars = {
 		urls: urlDatabase,
@@ -76,6 +76,7 @@ app.get('/urls', (req, res) => {
 	res.render('urls_index', templateVars);
 });
 
+//create new short urls
 app.get('/urls/new', (req, res) => {
 	if (req.session.user_id == undefined) {
 		res.redirect('/login');
@@ -85,7 +86,7 @@ app.get('/urls/new', (req, res) => {
 	};
 	res.render('urls_new', templateVars);
 });
-
+//generate short URL
 app.post('/urls', (req, res) => {
 	const shortURL = generateRandomString();
 	urlDatabase[shortURL] = {
@@ -101,6 +102,7 @@ app.post('/urls', (req, res) => {
 	res.redirect('/urls/' + shortURL);
 });
 
+//go to page to enter long URL
 app.get('/urls/:id', (req, res) => {
 	let templateVars = {
 		shortURL: req.params.id,
@@ -109,11 +111,11 @@ app.get('/urls/:id', (req, res) => {
 	};
 	res.render('urls_new', templateVars);
 });
-
+//show url database object
 app.get('/urls.json', (req, res) => {
 	res.json(urlDatabase);
 });
-
+//go to shorted URL
 app.get('/u/:shortURL', (req, res) => {
 	let shortURL = req.params.shortURL;
 	let longURL = urlDatabase[shortURL].longURL;
@@ -123,7 +125,7 @@ app.get('/u/:shortURL', (req, res) => {
 	}
 	res.redirect(longURL);
 });
-
+//delete url
 app.post('/urls/:id/delete', (req, res) => {
 	const id = req.params.id;
 	const longurlToDelete = urlDatabase[id];
@@ -136,7 +138,7 @@ app.post('/urls/:id/delete', (req, res) => {
 	}
 	res.redirect('/urls');
 });
-
+//edit URLs
 app.get('/urls/:id/edit', (req, res) => {
 	const id = req.params.id;
 
