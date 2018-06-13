@@ -38,17 +38,17 @@ const users = {
 	userRandomID: {
 		id: 'userRandomID',
 		email: 'user@example.com',
-		password: 'purple-monkey-dinosaur',
+		password: bcrypt.hashSync('purple-monkey-dinosaur', 10),
 	},
 	user2RandomID: {
 		id: 'user2RandomID',
 		email: 'user2@example.com',
-		password: 'dishwasher-funk',
+		password: bcrypt.hashSync('dishwasher-funk', 10),
 	},
 	user3: {
 		id: 'user3',
 		email: 'ab@gmail.com',
-		password: '123',
+		password: bcrypt.hashSync('123', 10),
 	},
 };
 
@@ -60,7 +60,6 @@ function generateRandomString() {
 
 //home page
 app.get('/', (req, res) => {
-	
 	if (res.session) {
 		res.redirect('/urls');
 	}
@@ -170,32 +169,31 @@ app.get('/hello', (req, res) => {
 	res.end(`<html><body>Hello <b>World</b></body></html>\n`);
 });
 
-function checkUser(email, password) {
-	for (id in users) {
-		const user = users[id];
-		const hashedPassword = bcrypt.hashSync(user.password, 10);
-		const checkPassword = bcrypt.compareSync(user.password, hashedPassword);
-		if (user.email == email && checkPassword) {
+//check login info
+function checkClearLogin(username, password) {
+	for (let user in users) {
+		if (
+			users[user].email === username &&
+			bcrypt.compareSync(password, users[user].password)
+		) {
 			return true;
 		}
 	}
-	return false;
+}
+//return ID for session
+function returnID(email) {
+	for (let user in users) {
+		if (users[user].email === email) {
+			return users[user].id;
+		}
+	}
 }
 
 app.post('/login', (req, res) => {
 	const login_email = req.body.email;
 	const login_password = req.body.password;
-
-	function returnID(email) {
-		for (id in users) {
-			var user = users[id];
-			if (user.email == email) {
-				return user.id;
-			}
-		}
-	}
-
-	if (checkUser(login_email, login_password)) {
+	const user = checkClearLogin(login_email, login_password);
+	if (user) {
 		req.session.user_id = returnID(login_email);
 		res.redirect('/urls');
 	} else {
